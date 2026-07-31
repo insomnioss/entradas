@@ -4,19 +4,19 @@ const WHATSAPP_NUMBER = "56968083233";
 const tickets = [
   {
     id: "general",
-    name: "Entrada General",
+    name: "TIPO ENTRADA",
     price: 8000,
     max: 50,
   },
   {
     id: "cover1",
-    name: "Entrada + un cover",
+    name: "TIPO ENTRADA 2",
     price: 10000,
     max: 50,
   },
   {
     id: "cover2",
-    name: "Entrada + dos cover",
+    name: "TIPO ENTRADA 3",
     price: 12000,
     max: 50,
   },
