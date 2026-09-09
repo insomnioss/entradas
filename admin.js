@@ -89,7 +89,7 @@ catalogEditor.addEventListener("submit", async (event) => {
   const feedback = form.querySelector("[data-feedback]");
   feedback.textContent = "Guardando...";
   try {
-    await api(`/api/admin/ticket-types/${form.dataset.ticketId}`, { method: "PUT", body: JSON.stringify({ name: form.querySelector("[data-name]").value, price: Number(form.querySelector("[data-price]").value), max: Number(form.querySelector("[data-max]").value), active: form.querySelector("[data-active]").checked }) });
+    await api(`/api/admin/ticket-types/${form.dataset.ticketId}/update`, { method: "POST", body: JSON.stringify({ name: form.querySelector("[data-name]").value, price: Number(form.querySelector("[data-price]").value), max: Number(form.querySelector("[data-max]").value), active: form.querySelector("[data-active]").checked }) });
     feedback.textContent = "Guardado";
     feedback.className = "catalog-feedback saved";
   } catch (error) {
@@ -119,10 +119,11 @@ catalogEditor.addEventListener("click", async (event) => {
   const button = event.target.closest("[data-remove]");
   if (!button || button.disabled) return;
   const form = button.closest(".catalog-row");
+  if (!window.confirm("¿Quitar esta entrada de las nuevas ventas? El historial se conservará.")) return;
   button.disabled = true;
   button.textContent = "Quitando...";
   try {
-    await api(`/api/admin/ticket-types/${form.dataset.ticketId}`, { method: "DELETE" });
+    await api(`/api/admin/ticket-types/${form.dataset.ticketId}/remove`, { method: "POST" });
     await loadDashboard();
   } catch (error) {
     button.disabled = false;
@@ -141,7 +142,7 @@ salesList.addEventListener("click", async (event) => {
   button.disabled = true;
   button.textContent = "Eliminando...";
   try {
-    await api(`/api/admin/tickets/${button.dataset.deleteSale}`, { method: "DELETE" });
+    await api(`/api/admin/tickets/${button.dataset.deleteSale}/remove`, { method: "POST" });
     await loadDashboard();
   } catch (error) {
     button.disabled = false;
