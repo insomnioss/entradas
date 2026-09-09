@@ -751,6 +751,11 @@ form {
   line-height: 1.45;
 }
 
+.qr-download {
+  width: fit-content;
+  margin-top: 5px;
+}
+
 .checkin-panel form {
   margin-top: 4px;
 }
@@ -1076,6 +1081,79 @@ form {
   background: rgba(255, 255, 255, 0.025);
 }
 
+.sale-details {
+  grid-column: 1 / -1;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  padding-top: 12px;
+}
+
+.sale-details summary {
+  width: fit-content;
+  color: #ffb17a;
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.sale-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.sale-detail-grid p,
+.manual-code {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  color: var(--text);
+  font-size: 0.86rem;
+}
+
+.sale-detail-grid span,
+.manual-code span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.sale-qr-area {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+  margin-top: 16px;
+}
+
+.sale-qr {
+  width: 170px;
+  height: 170px;
+  padding: 7px;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.sale-qr canvas,
+.sale-qr img {
+  display: block;
+  width: 156px;
+  height: 156px;
+}
+
+.manual-code code {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  color: #d9dde3;
+  font-size: 0.74rem;
+}
+
+.sale-no-qr {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
 .sale-row h3,
 .sale-row p {
   margin: 0;
@@ -1330,6 +1408,10 @@ form {
 
   .sale-row {
     grid-template-columns: 1fr auto;
+  }
+
+  .sale-detail-grid {
+    grid-template-columns: 1fr;
   }
 
   .sale-status {

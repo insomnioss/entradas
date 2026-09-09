@@ -13,12 +13,25 @@ function renderTickets(tickets, total) {
   ticketResults.innerHTML = tickets.map((ticket) => `
     <article class="qr-ticket">
       <div class="qr-code" data-qr-payload="${ticket.qrPayload}"></div>
-      <div><span>${ticket.type}</span><h2>${ticket.holderName}</h2><p>Presenta este QR en el acceso. Es personal y se valida una sola vez.</p></div>
+      <div><span>${ticket.type}</span><h2>${ticket.holderName}</h2><p>Presenta este QR en el acceso. Es personal y se valida una sola vez.</p><button class="secondary-button qr-download" type="button" data-download-ticket="${ticket.id}">Guardar QR</button></div>
     </article>`).join("");
   document.querySelectorAll("[data-qr-payload]").forEach((element) => {
     new QRCode(element, { text: element.dataset.qrPayload, width: 148, height: 148, correctLevel: QRCode.CorrectLevel.M });
   });
 }
+
+ticketResults.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-download-ticket]");
+  if (!button) return;
+  const ticket = button.closest(".qr-ticket");
+  const canvas = ticket.querySelector("canvas");
+  if (!canvas) return;
+  const holder = ticket.querySelector("h2").textContent.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "");
+  const link = document.createElement("a");
+  link.href = canvas.toDataURL("image/png");
+  link.download = `entrada-insomnio-${holder || button.dataset.downloadTicket}.png`;
+  link.click();
+});
 
 async function loadOrder(attempt = 0) {
   if (!orderId) {

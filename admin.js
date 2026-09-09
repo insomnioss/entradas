@@ -12,6 +12,10 @@ const salesSearch = document.querySelector("#salesSearch");
 const money = new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 });
 let sales = [];
 
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#039;" }[character]));
+}
+
 function headers() {
   return { "Content-Type": "application/json", "x-admin-key": keyInput.value };
 }
@@ -49,13 +53,32 @@ function renderSales() {
   const filtered = sales.filter((sale) => `${sale.holder_name} ${sale.buyer_name} ${sale.type}`.toLowerCase().includes(query));
   salesList.innerHTML = filtered.length ? filtered.map((sale) => {
     const status = statusInfo(sale);
+    const qrDetails = sale.qrPayload ? `
+      <div class="sale-qr" data-qr-payload="${escapeHtml(sale.qrPayload)}"></div>
+      <p class="manual-code"><span>Código manual</span><code>${escapeHtml(sale.qrPayload)}</code></p>
+      <button class="secondary-button qr-download" type="button" data-download-qr="${sale.ticket_id}">Guardar QR</button>` :
+      '<p class="sale-no-qr">El QR estará disponible cuando Mercado Pago confirme el pago.</p>';
     return `
     <article class="sale-row">
-      <div><span class="sale-type">${sale.type}</span><h3>${sale.holder_name}</h3><p>Comprador: ${sale.buyer_name}</p></div>
+      <div><span class="sale-type">${escapeHtml(sale.type)}</span><h3>${escapeHtml(sale.holder_name)}</h3><p>Comprador: ${escapeHtml(sale.buyer_name)}</p></div>
       <div class="sale-price"><strong>${money.format(sale.price)}</strong><span>${new Date(sale.created_at).toLocaleDateString("es-CL")}</span></div>
       <div class="sale-actions"><span class="sale-status ${status.className}">${status.label}</span><button class="remove-sale" type="button" data-delete-sale="${sale.ticket_id}">Eliminar</button></div>
+      <details class="sale-details"><summary>Ver datos y QR</summary><div class="sale-detail-grid"><p><span>Contacto</span>${escapeHtml(sale.buyer_phone)}</p><p><span>RUT comprador</span>${escapeHtml(sale.buyer_rut)}</p><p><span>Titular de esta entrada</span>${escapeHtml(sale.holder_name)}</p></div><div class="sale-qr-area">${qrDetails}</div></details>
     </article>`;
   }).join("") : '<p class="empty-sales">No hay entradas que coincidan con la búsqueda.</p>';
+  document.querySelectorAll(".sale-qr[data-qr-payload]").forEach((element) => {
+    new QRCode(element, { text: element.dataset.qrPayload, width: 156, height: 156, correctLevel: QRCode.CorrectLevel.M });
+  });
+}
+
+function downloadQr(button) {
+  const sale = sales.find((item) => item.ticket_id === button.dataset.downloadQr);
+  const qrCanvas = button.closest(".sale-qr-area").querySelector("canvas");
+  if (!sale || !qrCanvas) return;
+  const link = document.createElement("a");
+  link.href = qrCanvas.toDataURL("image/png");
+  link.download = `entrada-insomnio-${sale.holder_name.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || sale.ticket_id}.png`;
+  link.click();
 }
 
 async function loadDashboard() {
@@ -136,6 +159,11 @@ salesSearch.addEventListener("input", renderSales);
 document.querySelector("#refreshAdmin").addEventListener("click", () => { loadDashboard(); });
 
 salesList.addEventListener("click", async (event) => {
+  const downloadButton = event.target.closest("[data-download-qr]");
+  if (downloadButton) {
+    downloadQr(downloadButton);
+    return;
+  }
   const button = event.target.closest("[data-delete-sale]");
   if (!button) return;
   if (!window.confirm("¿Eliminar este registro de entrada? Esta acción no se puede deshacer.")) return;
