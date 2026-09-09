@@ -1,7 +1,7 @@
 const form = document.querySelector("#checkinForm");
 const result = document.querySelector("#checkinResult");
 const checkinKey = document.querySelector("#checkinKey");
-const qrCode = document.querySelector("#qrCode");
+const checkinRut = document.querySelector("#checkinRut");
 const startCameraButton = document.querySelector("#startCamera");
 const stopCameraButton = document.querySelector("#stopCamera");
 const keepCameraActive = document.querySelector("#keepCameraActive");
@@ -33,7 +33,7 @@ async function refreshValidationCount() {
   }
 }
 
-async function validateTicket(code) {
+async function validateTicket(code, rut = "") {
   if (isValidating) return;
   isValidating = true;
   result.textContent = "Validando...";
@@ -42,7 +42,7 @@ async function validateTicket(code) {
     const response = await fetch(`${API_BASE_URL}/api/checkin/validate`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-checkin-key": checkinKey.value },
-      body: JSON.stringify({ code }),
+      body: JSON.stringify(rut ? { rut } : { code }),
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error);
@@ -83,7 +83,6 @@ async function handleDetectedCode(decodedText) {
   scanFrameLocked = true;
   lastScannedCode = decodedText;
   lastScanAt = now;
-  qrCode.value = decodedText;
   cameraStatus.textContent = "QR detectado. Validando entrada...";
   if (!keepCameraActive.checked) await stopCamera();
   await validateTicket(decodedText);
@@ -172,11 +171,14 @@ async function startCamera() {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
-  if (!qrCode.value.trim()) return;
-  await validateTicket(qrCode.value);
+  if (!checkinRut.value.trim()) return;
+  await validateTicket("", checkinRut.value);
 });
 
 startCameraButton.addEventListener("click", startCamera);
 stopCameraButton.addEventListener("click", () => { stopCamera(); });
 checkinKey.addEventListener("change", refreshValidationCount);
+checkinRut.addEventListener("input", () => {
+  checkinRut.value = checkinRut.value.replace(/[.\s]/g, "").toUpperCase();
+});
 window.addEventListener("pagehide", () => { if (isCameraActive) stopCamera(); });

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>INSOMNIO | Validación</title>
-    <link rel="stylesheet" href="styles.css?v=camera-2" />
+    <link rel="stylesheet" href="styles.css?v=checkin-rut-1" />
   </head>
   <body class="ticket-result-page">
     <main class="result-shell">
@@ -14,6 +14,8 @@
         <p>Usa la camara del celular para validar la entrada al momento del ingreso.</p>
         <form id="checkinForm">
           <label class="field"><span>Clave de validación</span><input id="checkinKey" type="password" autocomplete="current-password" required /></label>
+          <p class="checkin-result" id="checkinResult" role="alert"></p>
+          <div class="checkin-counter" aria-live="polite"><span>Ingresos validados</span><strong id="validatedCount">--</strong></div>
           <div class="scanner-actions">
             <button class="camera-button" id="startCamera" type="button">Iniciar lector QR</button>
             <button class="secondary-button" id="stopCamera" type="button" hidden>Cerrar camara</button>
@@ -22,17 +24,15 @@
           <p class="camera-status" id="cameraStatus">La camara se abre con la lente trasera cuando esta disponible.</p>
           <div class="qr-reader" id="qrReader" hidden></div>
           <details class="manual-entry">
-            <summary>Ingresar código manualmente</summary>
-            <label class="field"><span>Contenido del código QR</span><textarea id="qrCode" rows="4" autocomplete="off"></textarea></label>
-            <button class="secondary-button" type="submit">Validar código manual</button>
+            <summary>Validar por RUT</summary>
+            <label class="field"><span>RUT del comprador</span><input id="checkinRut" type="text" inputmode="text" placeholder="12345678-9" autocomplete="off" /></label>
+            <button class="secondary-button" type="submit">Validar por RUT</button>
           </details>
         </form>
-        <div class="checkin-counter" aria-live="polite"><span>Ingresos validados</span><strong id="validatedCount">--</strong></div>
-        <p class="checkin-result" id="checkinResult" role="alert"></p>
       </section>
     </main>
     <script src="api-config.js?v=mp-1"></script>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js" type="text/javascript"></script>
-    <script src="checkin.js?v=camera-3"></script>
+    <script src="checkin.js?v=checkin-rut-1"></script>
   </body>
 </html>
