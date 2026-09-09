@@ -15,21 +15,24 @@
         <form id="checkinForm">
           <label class="field"><span>Clave de validación</span><input id="checkinKey" type="password" autocomplete="current-password" required /></label>
           <div class="scanner-actions">
-            <button class="camera-button" id="startCamera" type="button">Abrir camara</button>
+            <button class="camera-button" id="startCamera" type="button">Iniciar lector QR</button>
             <button class="secondary-button" id="stopCamera" type="button" hidden>Cerrar camara</button>
           </div>
           <label class="camera-toggle"><input id="keepCameraActive" type="checkbox" checked /> Mantener camara activa para validar varias entradas</label>
           <p class="camera-status" id="cameraStatus">La camara se abre con la lente trasera cuando esta disponible.</p>
           <div class="qr-reader" id="qrReader" hidden></div>
-          <label class="field"><span>Contenido del código QR</span><textarea id="qrCode" rows="4" autocomplete="off" required></textarea></label>
-          <button class="whatsapp-button" type="submit">Validar entrada</button>
+          <details class="manual-entry">
+            <summary>Ingresar código manualmente</summary>
+            <label class="field"><span>Contenido del código QR</span><textarea id="qrCode" rows="4" autocomplete="off"></textarea></label>
+            <button class="secondary-button" type="submit">Validar código manual</button>
+          </details>
         </form>
         <div class="checkin-counter" aria-live="polite"><span>Ingresos validados</span><strong id="validatedCount">--</strong></div>
         <p class="checkin-result" id="checkinResult" role="alert"></p>
       </section>
     </main>
     <script src="api-config.js?v=mp-1"></script>
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-    <script src="checkin.js?v=camera-2"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js" type="text/javascript"></script>
+    <script src="checkin.js?v=camera-3"></script>
   </body>
 </html>

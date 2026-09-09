@@ -847,6 +847,20 @@ form {
   object-fit: cover;
 }
 
+.manual-entry {
+  display: grid;
+  gap: 12px;
+  padding: 12px 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.manual-entry summary {
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
 .checkin-counter {
   display: flex;
   align-items: baseline;
@@ -1107,6 +1121,36 @@ form {
 .sale-status.pending {
   color: var(--muted);
   background: rgba(255, 255, 255, 0.08);
+}
+
+.sale-status.rejected {
+  color: #ff8f82;
+  background: rgba(217, 75, 62, 0.14);
+}
+
+.sale-status.payment-pending {
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.sale-actions {
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+}
+
+.remove-sale {
+  border: 0;
+  padding: 3px 0;
+  color: #ff8f82;
+  background: transparent;
+  font-size: 0.76rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.remove-sale:disabled {
+  opacity: 0.5;
 }
 
 .empty-sales {

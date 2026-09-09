@@ -37,19 +37,25 @@ function renderCatalog(catalog) {
     </form>`).join("");
 }
 
-function statusLabel(status) {
-  return status === "used" ? "Validada" : status === "active" ? "Pendiente de ingreso" : "Pendiente de pago";
+function statusInfo(sale) {
+  if (sale.order_status === "failed") return { label: "Pago rechazado", className: "rejected" };
+  if (sale.order_status !== "paid") return { label: "Pago pendiente", className: "payment-pending" };
+  if (sale.ticket_status === "used") return { label: "Validada", className: "used" };
+  return { label: "Por validar", className: "active" };
 }
 
 function renderSales() {
   const query = salesSearch.value.trim().toLowerCase();
   const filtered = sales.filter((sale) => `${sale.holder_name} ${sale.buyer_name} ${sale.type}`.toLowerCase().includes(query));
-  salesList.innerHTML = filtered.length ? filtered.map((sale) => `
+  salesList.innerHTML = filtered.length ? filtered.map((sale) => {
+    const status = statusInfo(sale);
+    return `
     <article class="sale-row">
       <div><span class="sale-type">${sale.type}</span><h3>${sale.holder_name}</h3><p>Comprador: ${sale.buyer_name}</p></div>
       <div class="sale-price"><strong>${money.format(sale.price)}</strong><span>${new Date(sale.created_at).toLocaleDateString("es-CL")}</span></div>
-      <span class="sale-status ${sale.ticket_status}">${statusLabel(sale.ticket_status)}</span>
-    </article>`).join("") : '<p class="empty-sales">No hay entradas que coincidan con la búsqueda.</p>';
+      <div class="sale-actions"><span class="sale-status ${status.className}">${status.label}</span><button class="remove-sale" type="button" data-delete-sale="${sale.ticket_id}">Eliminar</button></div>
+    </article>`;
+  }).join("") : '<p class="empty-sales">No hay entradas que coincidan con la búsqueda.</p>';
 }
 
 async function loadDashboard() {
@@ -127,3 +133,19 @@ catalogEditor.addEventListener("click", async (event) => {
 
 salesSearch.addEventListener("input", renderSales);
 document.querySelector("#refreshAdmin").addEventListener("click", () => { loadDashboard(); });
+
+salesList.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-delete-sale]");
+  if (!button) return;
+  if (!window.confirm("¿Eliminar este registro de entrada? Esta acción no se puede deshacer.")) return;
+  button.disabled = true;
+  button.textContent = "Eliminando...";
+  try {
+    await api(`/api/admin/tickets/${button.dataset.deleteSale}`, { method: "DELETE" });
+    await loadDashboard();
+  } catch (error) {
+    button.disabled = false;
+    button.textContent = "Eliminar";
+    window.alert(error.message);
+  }
+});

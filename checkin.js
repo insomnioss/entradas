@@ -14,6 +14,7 @@ let isCameraActive = false;
 let isValidating = false;
 let lastScannedCode = "";
 let lastScanAt = 0;
+let scanFrameLocked = false;
 
 async function refreshValidationCount() {
   if (!checkinKey.value.trim()) return;
@@ -84,18 +85,22 @@ async function startCamera() {
 
   const onScanSuccess = async (decodedText) => {
     const now = Date.now();
-    if (isValidating || (decodedText === lastScannedCode && now - lastScanAt < 5000)) return;
+    if (isValidating || scanFrameLocked || (decodedText === lastScannedCode && now - lastScanAt < 5000)) return;
+    scanFrameLocked = true;
     lastScannedCode = decodedText;
     lastScanAt = now;
     qrCode.value = decodedText;
+    cameraStatus.textContent = "QR detectado. Validando entrada...";
     if (!keepCameraActive.checked) await stopCamera();
     await validateTicket(decodedText);
+    scanFrameLocked = false;
+    if (isCameraActive) cameraStatus.textContent = "Listo. Apunta al siguiente codigo QR.";
   };
 
   try {
     await qrScanner.start(
       { facingMode: "environment" },
-      { fps: 10, qrbox: { width: 240, height: 240 }, aspectRatio: 1 },
+      { fps: 18, qrbox: (width, height) => ({ width: Math.min(280, width * 0.74), height: Math.min(280, width * 0.74) }), aspectRatio: 1, disableFlip: false },
       onScanSuccess,
       () => {},
     );
@@ -111,6 +116,7 @@ async function startCamera() {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
+  if (!qrCode.value.trim()) return;
   await validateTicket(qrCode.value);
 });
 
