@@ -25,6 +25,18 @@ function normalizeText(value) {
   return String(value ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim().toUpperCase();
 }
 
+function dateInputValue(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const offset = date.getTimezoneOffset();
+  return new Date(date.getTime() - offset * 60000).toISOString().slice(0, 16);
+}
+
+function deadlineValue(input) {
+  return input.value ? new Date(input.value).toISOString() : null;
+}
+
 async function api(path, options = {}) {
   const payload = options.body ? JSON.parse(options.body) : {};
   payload.adminKey = keyInput.value;
@@ -40,7 +52,10 @@ function renderCatalog(catalog) {
       <div><strong>${ticket.name}</strong><span>${ticket.id}</span></div>
       <label>Nombre<input data-name type="text" value="${ticket.name}" required /></label>
       <label>Precio CLP<input data-price type="number" min="0" step="500" value="${ticket.price}" required /></label>
-      <label>Máximo<input data-max type="number" min="1" max="500" value="${ticket.max}" required /></label>
+      <label>Máx. por compra<input data-max type="number" min="1" max="500" value="${ticket.max}" required /></label>
+      <label>Límite total<input data-sales-limit type="number" min="0" max="100000" value="${ticket.salesLimit}" required /></label>
+      <label>Fecha límite<input data-sale-end-at type="datetime-local" value="${dateInputValue(ticket.saleEndAt)}" /></label>
+      <div class="catalog-stock"><span>Vendidas / reservadas</span><strong>${ticket.sold} / ${ticket.salesLimit}</strong><small>${ticket.remaining === 0 ? "AGOTADA" : `${ticket.remaining} disponibles`}</small></div>
       <label class="switch-label"><input data-active type="checkbox" ${ticket.active ? "checked" : ""} /> Disponible</label>
       <button class="secondary-button" type="submit">Guardar</button>
       <button class="remove-ticket" type="button" data-remove ${ticket.active ? "" : "disabled"}>Quitar de venta</button>
@@ -126,7 +141,7 @@ catalogEditor.addEventListener("submit", async (event) => {
   const feedback = form.querySelector("[data-feedback]");
   feedback.textContent = "Guardando...";
   try {
-    await api(`/api/admin/ticket-types/${form.dataset.ticketId}/update`, { method: "POST", body: JSON.stringify({ name: form.querySelector("[data-name]").value, price: Number(form.querySelector("[data-price]").value), max: Number(form.querySelector("[data-max]").value), active: form.querySelector("[data-active]").checked }) });
+    await api(`/api/admin/ticket-types/${form.dataset.ticketId}/update`, { method: "POST", body: JSON.stringify({ name: form.querySelector("[data-name]").value, price: Number(form.querySelector("[data-price]").value), max: Number(form.querySelector("[data-max]").value), salesLimit: Number(form.querySelector("[data-sales-limit]").value), saleEndAt: deadlineValue(form.querySelector("[data-sale-end-at]")), active: form.querySelector("[data-active]").checked }) });
     feedback.textContent = "Guardado";
     feedback.className = "catalog-feedback saved";
   } catch (error) {
@@ -140,9 +155,11 @@ addTicketForm.addEventListener("submit", async (event) => {
   newTicketFeedback.className = "catalog-feedback";
   newTicketFeedback.textContent = "Agregando entrada...";
   try {
-    await api("/api/admin/ticket-types", { method: "POST", body: JSON.stringify({ name: document.querySelector("#newTicketName").value, price: Number(document.querySelector("#newTicketPrice").value), max: Number(document.querySelector("#newTicketMax").value) }) });
+    await api("/api/admin/ticket-types", { method: "POST", body: JSON.stringify({ name: document.querySelector("#newTicketName").value, price: Number(document.querySelector("#newTicketPrice").value), max: Number(document.querySelector("#newTicketMax").value), salesLimit: Number(document.querySelector("#newTicketSalesLimit").value), saleEndAt: deadlineValue(document.querySelector("#newTicketSaleEndAt")) }) });
     addTicketForm.reset();
     document.querySelector("#newTicketMax").value = 50;
+    document.querySelector("#newTicketSalesLimit").value = 50;
+    document.querySelector("#newTicketSaleEndAt").value = "";
     newTicketFeedback.className = "catalog-feedback saved";
     newTicketFeedback.textContent = "Entrada agregada y disponible para comprar.";
     await loadDashboard();

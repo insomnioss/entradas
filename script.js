@@ -8,18 +8,27 @@ const fallbackTickets = [
     name: "Entrada General",
     price: 8000,
     max: 50,
+    salesLimit: 50,
+    sold: 0,
+    remaining: 50,
   },
   {
     id: "cover1",
     name: "Entrada + un cover",
     price: 10000,
     max: 50,
+    salesLimit: 50,
+    sold: 0,
+    remaining: 50,
   },
   {
     id: "cover2",
     name: "Entrada + dos cover",
     price: 12000,
     max: 50,
+    salesLimit: 50,
+    sold: 0,
+    remaining: 50,
   },
 ];
 
@@ -65,21 +74,37 @@ function ticketIcon() {
   `;
 }
 
+function deadlineLabel(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const day = new Intl.DateTimeFormat("es-CL", { day: "numeric", month: "long", year: "numeric" }).format(date);
+  const time = new Intl.DateTimeFormat("es-CL", { hour: "2-digit", minute: "2-digit", hour12: false }).format(date);
+  return `Fecha límite: ${day}, hasta las ${time} HRS.`;
+}
+
+function availabilityLabel(ticket) {
+  if (ticket.available) return `DISPONIBLES: ${ticket.remaining}`;
+  if (ticket.unavailableReason === "deadline") return "NO DISPONIBLE";
+  return "AGOTADA";
+}
+
 function renderTickets() {
   ticketList.innerHTML = tickets
     .map(
       (ticket) => `
-        <article class="ticket-card" data-ticket-id="${ticket.id}">
+        <article class="ticket-card ${ticket.available ? "" : "is-sold-out"}" data-ticket-id="${ticket.id}">
           <div class="ticket-art">${ticketIcon()}</div>
           <div class="ticket-info">
             <h2>${ticket.name}</h2>
             <strong class="ticket-price">${currencyFormatter.format(ticket.price)}</strong>
-            <span class="ticket-limit">Max. ${ticket.max}</span>
+            <span class="ticket-limit">${availabilityLabel(ticket)}</span>
+            ${ticket.saleEndAt ? `<span class="ticket-deadline">${deadlineLabel(ticket.saleEndAt)}</span>` : ""}
           </div>
           <div class="ticket-controls">
             <button class="qty-button decrease" type="button" aria-label="Quitar ${ticket.name}" data-action="decrease">-</button>
             <span class="quantity-pill" data-quantity>${quantities[ticket.id]}</span>
-            <button class="qty-button increase" type="button" aria-label="Agregar ${ticket.name}" data-action="increase">+</button>
+            <button class="qty-button increase" type="button" aria-label="Agregar ${ticket.name}" data-action="increase" ${ticket.available ? "" : "disabled"}>+</button>
           </div>
         </article>
       `,
@@ -140,7 +165,7 @@ function updateTotals() {
     card.classList.toggle("is-selected", quantities[ticket.id] > 0);
     card.querySelector("[data-quantity]").textContent = quantities[ticket.id];
     card.querySelector('[data-action="decrease"]').disabled = quantities[ticket.id] === 0;
-    card.querySelector('[data-action="increase"]').disabled = quantities[ticket.id] >= ticket.max;
+    card.querySelector('[data-action="increase"]').disabled = !ticket.available || quantities[ticket.id] >= Math.min(ticket.max, ticket.remaining);
   });
 }
 
@@ -313,7 +338,7 @@ ticketList.addEventListener("click", (event) => {
   const ticket = tickets.find((item) => item.id === card.dataset.ticketId);
   const action = button.dataset.action;
 
-  if (action === "increase" && quantities[ticket.id] < ticket.max) {
+  if (action === "increase" && ticket.available && quantities[ticket.id] < Math.min(ticket.max, ticket.remaining)) {
     quantities[ticket.id] += 1;
   }
 

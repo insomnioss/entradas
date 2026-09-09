@@ -965,7 +965,7 @@ form {
 
 .add-ticket-form {
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) 130px 120px auto;
+  grid-template-columns: minmax(180px, 1fr) 130px 120px 150px 180px auto;
   align-items: end;
   gap: 10px;
   padding: 14px;
@@ -993,7 +993,7 @@ form {
 
 .catalog-row {
   display: grid;
-  grid-template-columns: minmax(110px, 1fr) minmax(140px, 1fr) 110px 90px 105px auto auto;
+  grid-template-columns: minmax(110px, 1fr) minmax(140px, 1fr) 110px 90px 100px 170px 105px auto auto;
   align-items: end;
   gap: 10px;
   padding: 14px;
@@ -1028,6 +1028,44 @@ form {
   display: flex;
   align-items: center;
   min-height: 40px;
+}
+
+.catalog-stock {
+  display: grid;
+  gap: 3px;
+  min-width: 115px;
+  min-height: 40px;
+}
+
+.catalog-stock span,
+.catalog-stock small {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.catalog-stock strong {
+  color: #47cb99;
+  font-size: 0.9rem;
+}
+
+.catalog-stock small {
+  color: #ffb17a;
+}
+
+.ticket-card.is-sold-out {
+  opacity: 0.68;
+}
+
+.ticket-card.is-sold-out .ticket-limit {
+  color: #ff8f82;
+}
+
+.ticket-deadline {
+  max-width: 260px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.35;
 }
 
 .catalog-row .switch-label input {

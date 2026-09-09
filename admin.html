@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>INSOMNIO | Administración</title>
-    <link rel="stylesheet" href="styles.css?v=admin-3" />
+    <link rel="stylesheet" href="styles.css?v=deadline-1" />
   </head>
   <body class="ticket-result-page">
     <main class="result-shell admin-shell">
@@ -36,6 +36,8 @@
             <label>Nombre de nueva entrada<input id="newTicketName" type="text" placeholder="Ej: Entrada VIP" required /></label>
             <label>Precio CLP<input id="newTicketPrice" type="number" min="0" step="500" placeholder="25000" required /></label>
             <label>Máximo por compra<input id="newTicketMax" type="number" min="1" max="500" value="50" required /></label>
+            <label>Límite total de ventas<input id="newTicketSalesLimit" type="number" min="0" max="100000" value="50" required /></label>
+            <label>Fecha límite<input id="newTicketSaleEndAt" type="datetime-local" /></label>
             <button class="camera-button" type="submit">Agregar entrada</button>
           </form>
           <p class="catalog-feedback" id="newTicketFeedback"></p>
@@ -51,6 +53,6 @@
     </main>
     <script src="api-config.js?v=mp-1"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-    <script src="admin.js?v=admin-4"></script>
+    <script src="admin.js?v=deadline-1"></script>
   </body>
 </html>
