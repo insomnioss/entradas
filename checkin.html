@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>INSOMNIO | Validación</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="ticket-result-page">
+    <main class="result-shell">
+      <section class="result-panel checkin-panel">
+        <span class="modal-kicker">Acceso de producción</span>
+        <h1>Validar entrada</h1>
+        <p>Escanea el QR con un lector o pega su contenido para registrar el ingreso.</p>
+        <form id="checkinForm">
+          <label class="field"><span>Clave de validación</span><input id="checkinKey" type="password" autocomplete="current-password" required /></label>
+          <label class="field"><span>Contenido del código QR</span><textarea id="qrCode" rows="4" autocomplete="off" required></textarea></label>
+          <button class="whatsapp-button" type="submit">Validar entrada</button>
+        </form>
+        <p class="checkin-result" id="checkinResult" role="alert"></p>
+      </section>
+    </main>
+    <script src="api-config.js"></script>
+    <script src="checkin.js"></script>
+  </body>
+</html>

@@ -1,22 +1,23 @@
 // Reemplaza este valor por el WhatsApp real, en formato internacional sin + ni espacios.
 const WHATSAPP_NUMBER = "56968083233";
+const API_BASE_URL = (window.INSOMNIO_API_BASE_URL || "").replace(/\/$/, "");
 
 const tickets = [
   {
     id: "general",
-    name: "TIPO ENTRADA",
+    name: "Entrada General",
     price: 8000,
     max: 50,
   },
   {
     id: "cover1",
-    name: "TIPO ENTRADA 2",
+    name: "Entrada + un cover",
     price: 10000,
     max: 50,
   },
   {
     id: "cover2",
-    name: "TIPO ENTRADA 3",
+    name: "Entrada + dos cover",
     price: 12000,
     max: 50,
   },
@@ -45,6 +46,8 @@ const attendeesError = document.querySelector("#attendeesError");
 const fullNameInput = document.querySelector("#fullName");
 const rutInput = document.querySelector("#rut");
 const phoneInput = document.querySelector("#phone");
+const payWithMercadoPagoButton = document.querySelector("#payWithMercadoPago");
+const checkoutError = document.querySelector("#checkoutError");
 
 const errors = {
   fullName: document.querySelector("#nameError"),
@@ -274,36 +277,14 @@ function validateBuyerForm() {
   return isValid;
 }
 
-function ticketHolderLines() {
+function ticketHolders() {
   const units = selectedTicketUnits();
   const attendeeInputs = [...attendeesList.querySelectorAll("[data-attendee-name]")];
 
   return units.map((unit, index) => {
     const name = index === 0 ? fullNameInput.value.trim() : attendeeInputs[index - 1]?.value.trim();
-    return `- ${unit.ticketName}: ${name}`;
+    return { ticketType: unit.ticketName, name };
   });
-}
-
-function buildWhatsappMessage() {
-  const itemLines = selectedItems().map(
-    (item) => `- ${item.quantity} x ${item.name}: ${currencyFormatter.format(item.subtotal)} CLP`,
-  );
-
-  return [
-    "Hola, quiero comprar entradas para INSOMNIO.",
-    "",
-    "Detalle:",
-    ...itemLines,
-    "",
-    `Total: ${currencyFormatter.format(cartTotal())} CLP`,
-    "",
-    `Nombre: ${fullNameInput.value.trim()}`,
-    `RUT: ${formatRut(rutInput.value)}`,
-    `Teléfono: +56 ${phoneInput.value.replace(/\D/g, "")}`,
-    "",
-    "Entradas a nombre de:",
-    ...ticketHolderLines(),
-  ].join("\n");
 }
 
 ticketList.addEventListener("click", (event) => {
@@ -354,15 +335,44 @@ phoneInput.addEventListener("input", () => {
   phoneInput.value = phoneInput.value.replace(/\D/g, "").slice(0, 9);
 });
 
-buyerForm.addEventListener("submit", (event) => {
+buyerForm.addEventListener("submit", async (event) => {
   event.preventDefault();
+  checkoutError.textContent = "";
 
   if (!validateBuyerForm()) {
     return;
   }
 
-  const message = encodeURIComponent(buildWhatsappMessage());
-  window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
+  const originalLabel = payWithMercadoPagoButton.textContent;
+  payWithMercadoPagoButton.disabled = true;
+  payWithMercadoPagoButton.textContent = "Preparando pago...";
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/checkout`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        buyer: {
+          fullName: fullNameInput.value.trim(),
+          rut: formatRut(rutInput.value),
+          phone: phoneInput.value.replace(/\D/g, ""),
+        },
+        cart: selectedItems().map((item) => ({ id: item.id, quantity: item.quantity })),
+        ticketHolders: ticketHolders(),
+      }),
+    });
+    const result = await response.json();
+
+    if (!response.ok || !result.checkoutUrl) {
+      throw new Error(result.error || "No fue posible iniciar el pago.");
+    }
+
+    window.location.assign(result.checkoutUrl);
+  } catch (error) {
+    checkoutError.textContent = error.message || "No fue posible iniciar el pago. Intenta nuevamente.";
+    payWithMercadoPagoButton.disabled = false;
+    payWithMercadoPagoButton.textContent = originalLabel;
+  }
 });
 
 renderTickets();

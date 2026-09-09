@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>INSOMNIO | Tus entradas</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="ticket-result-page">
+    <main class="result-shell">
+      <a class="brand-link" href="/" aria-label="Volver a INSOMNIO"><img src="assets/insomnio-logo-transparent.png" alt="INSOMNIO" /></a>
+      <section class="result-panel" aria-live="polite">
+        <span class="modal-kicker">Compra de entradas</span>
+        <h1 id="resultTitle">Verificando tu pago</h1>
+        <p id="resultText">Estamos confirmando el estado con Mercado Pago.</p>
+        <div id="ticketResults" class="ticket-results"></div>
+        <a class="support-link" href="https://wa.me/56968083233?text=Hola%2C%20necesito%20ayuda%20con%20la%20compra%20de%20entradas%20para%20INSOMNIO." target="_blank" rel="noreferrer">¿Necesitas ayuda? Escríbenos por WhatsApp</a>
+      </section>
+    </main>
+    <script src="api-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="success.js"></script>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "name": "insomnio-entradas",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Venta de entradas INSOMNIO con Mercado Pago y tickets QR.",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "qrcode": "^1.5.4"
+  }
+}
