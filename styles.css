@@ -760,6 +760,10 @@ form {
   margin-top: 4px;
 }
 
+.checkin-dashboard[hidden] {
+  display: none;
+}
+
 .checkin-result {
   min-height: 1.4em;
   margin: 0;

@@ -1,3 +1,7 @@
+const login = document.querySelector("#checkinLogin");
+const dashboard = document.querySelector("#checkinDashboard");
+const loginForm = document.querySelector("#checkinLoginForm");
+const loginResult = document.querySelector("#checkinLoginResult");
 const form = document.querySelector("#checkinForm");
 const result = document.querySelector("#checkinResult");
 const checkinKey = document.querySelector("#checkinKey");
@@ -31,6 +35,15 @@ async function refreshValidationCount() {
   } catch {
     validatedCount.textContent = "--";
   }
+}
+
+async function authenticate() {
+  const response = await fetch(`${API_BASE_URL}/api/checkin/stats`, {
+    headers: { "x-checkin-key": checkinKey.value },
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || "No fue posible abrir el validador.");
+  validatedCount.textContent = data.validated;
 }
 
 async function validateTicket(code, rut = "") {
@@ -175,9 +188,22 @@ form.addEventListener("submit", async (event) => {
   await validateTicket("", checkinRut.value);
 });
 
+loginForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  loginResult.className = "checkin-result";
+  loginResult.textContent = "Abriendo validador...";
+  try {
+    await authenticate();
+    login.hidden = true;
+    dashboard.hidden = false;
+  } catch (error) {
+    loginResult.className = "checkin-result error-state";
+    loginResult.textContent = error.message;
+  }
+});
+
 startCameraButton.addEventListener("click", startCamera);
 stopCameraButton.addEventListener("click", () => { stopCamera(); });
-checkinKey.addEventListener("change", refreshValidationCount);
 checkinRut.addEventListener("input", () => {
   checkinRut.value = checkinRut.value.replace(/[.\s]/g, "").toUpperCase();
 });
