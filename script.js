@@ -2,7 +2,7 @@
 const WHATSAPP_NUMBER = "56968083233";
 const API_BASE_URL = (window.INSOMNIO_API_BASE_URL || "").replace(/\/$/, "");
 
-const tickets = [
+const fallbackTickets = [
   {
     id: "general",
     name: "Entrada General",
@@ -23,7 +23,8 @@ const tickets = [
   },
 ];
 
-const quantities = Object.fromEntries(tickets.map((ticket) => [ticket.id, 0]));
+let tickets = [];
+let quantities = {};
 
 const currencyFormatter = new Intl.NumberFormat("es-CL", {
   style: "currency",
@@ -84,6 +85,21 @@ function renderTickets() {
       `,
     )
     .join("");
+}
+
+async function loadTickets() {
+  ticketList.innerHTML = '<p class="loading-tickets">Cargando entradas disponibles...</p>';
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/ticket-types`);
+    const data = await response.json();
+    if (!response.ok || !Array.isArray(data)) throw new Error("No se pudo cargar el catalogo.");
+    tickets = data;
+  } catch {
+    tickets = fallbackTickets;
+  }
+  quantities = Object.fromEntries(tickets.map((ticket) => [ticket.id, 0]));
+  renderTickets();
+  updateTotals();
 }
 
 function selectedItems() {
@@ -375,5 +391,4 @@ buyerForm.addEventListener("submit", async (event) => {
   }
 });
 
-renderTickets();
-updateTotals();
+loadTickets();

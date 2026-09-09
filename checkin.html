@@ -4,23 +4,32 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>INSOMNIO | Validación</title>
-    <link rel="stylesheet" href="styles.css?v=mp-1" />
+    <link rel="stylesheet" href="styles.css?v=camera-2" />
   </head>
   <body class="ticket-result-page">
     <main class="result-shell">
       <section class="result-panel checkin-panel">
         <span class="modal-kicker">Acceso de producción</span>
         <h1>Validar entrada</h1>
-        <p>Escanea el QR con un lector o pega su contenido para registrar el ingreso.</p>
+        <p>Usa la camara del celular para validar la entrada al momento del ingreso.</p>
         <form id="checkinForm">
           <label class="field"><span>Clave de validación</span><input id="checkinKey" type="password" autocomplete="current-password" required /></label>
+          <div class="scanner-actions">
+            <button class="camera-button" id="startCamera" type="button">Abrir camara</button>
+            <button class="secondary-button" id="stopCamera" type="button" hidden>Cerrar camara</button>
+          </div>
+          <label class="camera-toggle"><input id="keepCameraActive" type="checkbox" checked /> Mantener camara activa para validar varias entradas</label>
+          <p class="camera-status" id="cameraStatus">La camara se abre con la lente trasera cuando esta disponible.</p>
+          <div class="qr-reader" id="qrReader" hidden></div>
           <label class="field"><span>Contenido del código QR</span><textarea id="qrCode" rows="4" autocomplete="off" required></textarea></label>
           <button class="whatsapp-button" type="submit">Validar entrada</button>
         </form>
+        <div class="checkin-counter" aria-live="polite"><span>Ingresos validados</span><strong id="validatedCount">--</strong></div>
         <p class="checkin-result" id="checkinResult" role="alert"></p>
       </section>
     </main>
     <script src="api-config.js?v=mp-1"></script>
-    <script src="checkin.js?v=mp-1"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="checkin.js?v=camera-2"></script>
   </body>
 </html>

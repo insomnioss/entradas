@@ -264,6 +264,15 @@ app.post("/api/checkin/validate", async (req, res) => {
   return res.json(result);
 });
 
+app.get("/api/checkin/stats", (req, res) => {
+  if (!process.env.CHECKIN_SECRET || req.get("x-checkin-key") !== process.env.CHECKIN_SECRET) {
+    return res.status(401).json({ error: "Clave de validación inválida." });
+  }
+  const store = readStore();
+  const validated = Object.values(store.orders).flatMap((order) => order.tickets).filter((ticket) => ticket.status === "used").length;
+  return res.json({ validated });
+});
+
 app.use(express.static(__dirname, { extensions: ["html"] }));
 
 ensureStore();

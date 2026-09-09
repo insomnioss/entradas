@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>INSOMNIO | Administración</title>
+    <link rel="stylesheet" href="styles.css?v=admin-1" />
+  </head>
+  <body class="ticket-result-page">
+    <main class="result-shell admin-shell">
+      <section class="result-panel admin-login" id="adminLogin">
+        <span class="modal-kicker">Administración</span>
+        <h1>Control de entradas</h1>
+        <p>Gestiona precios y revisa las ventas e ingresos del evento.</p>
+        <form id="adminLoginForm">
+          <label class="field"><span>Clave de administración</span><input id="adminKey" type="password" autocomplete="current-password" required /></label>
+          <button class="whatsapp-button" type="submit">Entrar al panel</button>
+        </form>
+        <p class="checkin-result" id="adminLoginResult" role="alert"></p>
+      </section>
+
+      <section class="admin-dashboard" id="adminDashboard" hidden>
+        <header class="admin-header">
+          <div><span class="modal-kicker">INSOMNIO</span><h1>Panel de ventas</h1></div>
+          <button class="secondary-button" id="refreshAdmin" type="button">Actualizar</button>
+        </header>
+        <div class="admin-metrics">
+          <article><span>Entradas vendidas</span><strong id="soldTickets">0</strong></article>
+          <article><span>Ventas aprobadas</span><strong id="revenue">$0</strong></article>
+          <article><span>Ingresos registrados</span><strong id="usedTickets">0</strong></article>
+        </div>
+
+        <section class="admin-section">
+          <div class="admin-section-header"><div><span class="modal-kicker">Catálogo</span><h2>Precios y disponibilidad</h2></div><p>Los cambios aplican a las próximas compras. Las entradas ya vendidas conservan su valor original.</p></div>
+          <form class="add-ticket-form" id="addTicketForm">
+            <label>Nombre de nueva entrada<input id="newTicketName" type="text" placeholder="Ej: Entrada VIP" required /></label>
+            <label>Precio CLP<input id="newTicketPrice" type="number" min="0" step="500" placeholder="25000" required /></label>
+            <label>Máximo por compra<input id="newTicketMax" type="number" min="1" max="500" value="50" required /></label>
+            <button class="camera-button" type="submit">Agregar entrada</button>
+          </form>
+          <p class="catalog-feedback" id="newTicketFeedback"></p>
+          <div class="catalog-editor" id="catalogEditor"></div>
+        </section>
+
+        <section class="admin-section">
+          <div class="admin-section-header"><div><span class="modal-kicker">Catastro</span><h2>Entradas vendidas</h2></div><input class="sales-search" id="salesSearch" type="search" placeholder="Buscar por nombre o entrada" /></div>
+          <div class="sales-list" id="salesList"></div>
+        </section>
+      </section>
+    </main>
+    <script src="api-config.js?v=mp-1"></script>
+    <script src="admin.js?v=admin-1"></script>
+  </body>
+</html>
