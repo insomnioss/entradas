@@ -1070,6 +1070,37 @@ form {
   width: min(270px, 100%);
 }
 
+.sales-tools,
+.sales-tools label,
+.sales-pagination {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sales-tools label {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.sales-tools select {
+  width: auto;
+  min-height: 38px;
+  padding: 0 28px 0 10px;
+}
+
+.sales-pagination {
+  justify-content: center;
+}
+
+.sales-pagination span {
+  min-width: 160px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-align: center;
+}
+
 .sale-row {
   display: grid;
   grid-template-columns: 1fr auto auto;
@@ -1404,6 +1435,15 @@ form {
 
   .sales-search {
     width: 100%;
+  }
+
+  .sales-tools {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .sales-tools label {
+    justify-content: space-between;
   }
 
   .sale-row {

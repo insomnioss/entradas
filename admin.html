@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>INSOMNIO | Administración</title>
-    <link rel="stylesheet" href="styles.css?v=admin-2" />
+    <link rel="stylesheet" href="styles.css?v=admin-3" />
   </head>
   <body class="ticket-result-page">
     <main class="result-shell admin-shell">
@@ -43,13 +43,14 @@
         </section>
 
         <section class="admin-section">
-          <div class="admin-section-header"><div><span class="modal-kicker">Catastro</span><h2>Entradas vendidas</h2></div><input class="sales-search" id="salesSearch" type="search" placeholder="Buscar por nombre o entrada" /></div>
+          <div class="admin-section-header"><div><span class="modal-kicker">Catastro</span><h2>Entradas vendidas</h2></div><div class="sales-tools"><input class="sales-search" id="salesSearch" type="search" placeholder="Buscar por nombre o entrada" /><label>Ver<select id="salesPerPage"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option><option value="100">100</option></select></label></div></div>
           <div class="sales-list" id="salesList"></div>
+          <nav class="sales-pagination" aria-label="Paginación del catastro"><button class="secondary-button" id="previousSalesPage" type="button">Anterior</button><span id="salesPageInfo"></span><button class="secondary-button" id="nextSalesPage" type="button">Siguiente</button></nav>
         </section>
       </section>
     </main>
     <script src="api-config.js?v=mp-1"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-    <script src="admin.js?v=admin-3"></script>
+    <script src="admin.js?v=admin-4"></script>
   </body>
 </html>

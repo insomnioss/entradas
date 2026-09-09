@@ -9,19 +9,26 @@ const addTicketForm = document.querySelector("#addTicketForm");
 const newTicketFeedback = document.querySelector("#newTicketFeedback");
 const salesList = document.querySelector("#salesList");
 const salesSearch = document.querySelector("#salesSearch");
+const salesPerPage = document.querySelector("#salesPerPage");
+const previousSalesPage = document.querySelector("#previousSalesPage");
+const nextSalesPage = document.querySelector("#nextSalesPage");
+const salesPageInfo = document.querySelector("#salesPageInfo");
 const money = new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 });
 let sales = [];
+let currentSalesPage = 1;
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#039;" }[character]));
 }
 
-function headers() {
-  return { "Content-Type": "application/json", "x-admin-key": keyInput.value };
+function normalizeText(value) {
+  return String(value ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim().toUpperCase();
 }
 
 async function api(path, options = {}) {
-  const response = await fetch(`${API_BASE_URL}${path}`, { ...options, headers: { ...headers(), ...(options.headers || {}) } });
+  const payload = options.body ? JSON.parse(options.body) : {};
+  payload.adminKey = keyInput.value;
+  const response = await fetch(`${API_BASE_URL}${path}`, { ...options, method: options.method || "POST", body: JSON.stringify(payload) });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || "No fue posible cargar la información.");
   return data;
@@ -49,9 +56,13 @@ function statusInfo(sale) {
 }
 
 function renderSales() {
-  const query = salesSearch.value.trim().toLowerCase();
-  const filtered = sales.filter((sale) => `${sale.holder_name} ${sale.buyer_name} ${sale.type}`.toLowerCase().includes(query));
-  salesList.innerHTML = filtered.length ? filtered.map((sale) => {
+  const query = normalizeText(salesSearch.value);
+  const filtered = sales.filter((sale) => normalizeText(`${sale.holder_name} ${sale.buyer_name} ${sale.type}`).includes(query));
+  const perPage = Number(salesPerPage.value);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+  currentSalesPage = Math.min(currentSalesPage, totalPages);
+  const visibleSales = filtered.slice((currentSalesPage - 1) * perPage, currentSalesPage * perPage);
+  salesList.innerHTML = visibleSales.length ? visibleSales.map((sale) => {
     const status = statusInfo(sale);
     const qrDetails = sale.qrPayload ? `
       <div class="sale-qr" data-qr-payload="${escapeHtml(sale.qrPayload)}"></div>
@@ -60,15 +71,18 @@ function renderSales() {
       '<p class="sale-no-qr">El QR estará disponible cuando Mercado Pago confirme el pago.</p>';
     return `
     <article class="sale-row">
-      <div><span class="sale-type">${escapeHtml(sale.type)}</span><h3>${escapeHtml(sale.holder_name)}</h3><p>Comprador: ${escapeHtml(sale.buyer_name)}</p></div>
+      <div><span class="sale-type">${escapeHtml(sale.type)}</span><h3>${escapeHtml(normalizeText(sale.holder_name))}</h3><p>Comprador: ${escapeHtml(normalizeText(sale.buyer_name))}</p></div>
       <div class="sale-price"><strong>${money.format(sale.price)}</strong><span>${new Date(sale.created_at).toLocaleDateString("es-CL")}</span></div>
       <div class="sale-actions"><span class="sale-status ${status.className}">${status.label}</span><button class="remove-sale" type="button" data-delete-sale="${sale.ticket_id}">Eliminar</button></div>
-      <details class="sale-details"><summary>Ver datos y QR</summary><div class="sale-detail-grid"><p><span>Contacto</span>${escapeHtml(sale.buyer_phone)}</p><p><span>RUT comprador</span>${escapeHtml(sale.buyer_rut)}</p><p><span>Titular de esta entrada</span>${escapeHtml(sale.holder_name)}</p></div><div class="sale-qr-area">${qrDetails}</div></details>
+      <details class="sale-details"><summary>Ver datos y QR</summary><div class="sale-detail-grid"><p><span>Contacto</span>${escapeHtml(sale.buyer_phone)}</p><p><span>RUT comprador</span>${escapeHtml(sale.buyer_rut)}</p><p><span>Titular de esta entrada</span>${escapeHtml(normalizeText(sale.holder_name))}</p></div><div class="sale-qr-area">${qrDetails}</div></details>
     </article>`;
   }).join("") : '<p class="empty-sales">No hay entradas que coincidan con la búsqueda.</p>';
   document.querySelectorAll(".sale-qr[data-qr-payload]").forEach((element) => {
     new QRCode(element, { text: element.dataset.qrPayload, width: 156, height: 156, correctLevel: QRCode.CorrectLevel.M });
   });
+  salesPageInfo.textContent = filtered.length ? `Página ${currentSalesPage} de ${totalPages} · ${filtered.length} entradas` : "Sin resultados";
+  previousSalesPage.disabled = currentSalesPage <= 1;
+  nextSalesPage.disabled = currentSalesPage >= totalPages;
 }
 
 function downloadQr(button) {
@@ -82,7 +96,7 @@ function downloadQr(button) {
 }
 
 async function loadDashboard() {
-  const [catalog, data] = await Promise.all([api("/api/admin/ticket-types"), api("/api/admin/sales")]);
+  const [catalog, data] = await Promise.all([api("/api/admin/catalog"), api("/api/admin/sales")]);
   renderCatalog(catalog);
   sales = data.sales;
   document.querySelector("#soldTickets").textContent = data.summary.tickets;
@@ -155,7 +169,10 @@ catalogEditor.addEventListener("click", async (event) => {
   }
 });
 
-salesSearch.addEventListener("input", renderSales);
+salesSearch.addEventListener("input", () => { currentSalesPage = 1; renderSales(); });
+salesPerPage.addEventListener("change", () => { currentSalesPage = 1; renderSales(); });
+previousSalesPage.addEventListener("click", () => { currentSalesPage -= 1; renderSales(); });
+nextSalesPage.addEventListener("click", () => { currentSalesPage += 1; renderSales(); });
 document.querySelector("#refreshAdmin").addEventListener("click", () => { loadDashboard(); });
 
 salesList.addEventListener("click", async (event) => {
